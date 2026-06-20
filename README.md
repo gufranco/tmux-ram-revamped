@@ -1,16 +1,29 @@
-# tmux-ram-revamped
+<div align="center">
+
+<h1>tmux-ram-revamped</h1>
+
+**RAM usage for your tmux status bar, without ever blocking the status render.**
 
 [![Tests](https://github.com/gufranco/tmux-ram-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/gufranco/tmux-ram-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-RAM usage for your tmux status bar, without ever blocking the status render.
+</div>
 
-The value is read from a tmux server user-option and returns instantly, while a
-detached worker recomputes it in the background. No temp files are used; all state
-lives in tmux options.
+**7** placeholders · **2** platforms · **102** tests · **95%+** coverage
 
-Inspired by the RAM metrics in
-[tmux-cpu](https://github.com/tmux-plugins/tmux-cpu). Built from
-[tmux-plugin-template](https://github.com/gufranco/tmux-plugin-template).
+Shows RAM usage, available memory, swap, and a memory breakdown in your tmux status bar. The value is read from a tmux server user-option and returns instantly, while a detached worker recomputes it in the background. No temp files are used; all state lives in tmux options.
+
+Inspired by the RAM metrics in [tmux-cpu](https://github.com/tmux-plugins/tmux-cpu). Built from [tmux-plugin-template](https://github.com/gufranco/tmux-plugin-template).
+
+<table>
+<tr>
+<td><b>Non-blocking</b><br>The status render reads a cached value and returns instantly. A detached worker recomputes in the background.</td>
+<td><b>No temp files</b><br>All state lives in tmux server options. Nothing is written to disk.</td>
+</tr>
+<tr>
+<td><b>Cross-platform</b><br>Runs on Linux and macOS, Intel and Apple Silicon, with built-in tools only.</td>
+<td><b>Tested</b><br>102 tests with 95%+ coverage on every supported platform.</td>
+</tr>
+</table>
 
 ## Placeholders
 
@@ -70,6 +83,14 @@ package required.
 |----------|--------|
 | macOS (Intel and Apple Silicon) | `vm_stat` page counts |
 | Linux (x86_64 and arm64) | `/proc/meminfo`, used is total minus available |
+
+## Development
+
+```sh
+make test
+make lint
+make coverage
+```
 
 ## License
 

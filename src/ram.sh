@@ -30,6 +30,8 @@ ram_max_age() {
 
 ram_refresh() {
   cache_set percent "$(read_ram_percentage)"
+  cache_set available "$(read_available)"
+  cache_set swap "$(read_swap)"
 }
 
 ram_tick() {
@@ -51,6 +53,8 @@ main() {
     icon)       ram_render_icon "$(cache_get percent)" ;;
     fg_color)   ram_render_fg "$(cache_get percent)" ;;
     bg_color)   ram_render_bg "$(cache_get percent)" ;;
+    available)  ram_render_available "$(cache_get available)" ;;
+    swap)       ram_render_swap "$(cache_get swap)" ;;
     *)          return 0 ;;
   esac
 }

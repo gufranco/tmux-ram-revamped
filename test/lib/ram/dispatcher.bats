@@ -8,6 +8,8 @@ setup() {
   export CACHE_SYNC=1
   source "${BATS_TEST_DIRNAME}/../../../src/ram.sh"
   read_ram_percentage() { echo "60"; }
+  read_available() { echo "40"; }
+  read_swap() { echo "25"; }
 }
 
 teardown() {
@@ -30,9 +32,18 @@ teardown() {
   [[ "$(ram_max_age)" == "8" ]]
 }
 
-@test "ram.sh dispatcher - ram_refresh caches the percentage" {
+@test "ram.sh dispatcher - ram_refresh caches every metric" {
   ram_refresh
   [[ "$(cache_get percent)" == "60" ]]
+  [[ "$(cache_get available)" == "40" ]]
+  [[ "$(cache_get swap)" == "25" ]]
+}
+
+@test "ram.sh dispatcher - available and swap subcommands render the cache" {
+  run main available
+  [[ "${output}" == "40%" ]]
+  run main swap
+  [[ "${output}" == "25%" ]]
 }
 
 @test "ram.sh dispatcher - refresh subcommand caches the percentage" {

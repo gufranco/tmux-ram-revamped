@@ -66,10 +66,86 @@ read_ram_percentage() {
   fi
 }
 
+# avail_from_meminfo TEXT -> available-memory percent from /proc/meminfo.
+avail_from_meminfo() {
+  local total avail
+  total=$(_meminfo_field "${1}" "MemTotal")
+  avail=$(_meminfo_field "${1}" "MemAvailable")
+  [[ "${total}" =~ ^[0-9]+$ && "${avail}" =~ ^[0-9]+$ && "${total}" -gt 0 ]] || { echo 0; return 0; }
+  awk -v a="${avail}" -v t="${total}" 'BEGIN { printf "%.0f", (a / t) * 100 }'
+}
+
+# avail_from_vmstat TEXT -> available-memory percent from vm_stat.
+avail_from_vmstat() {
+  local free inactive spec active wired compressed
+  free=$(_vmstat_pages "${1}" "Pages free"); inactive=$(_vmstat_pages "${1}" "Pages inactive")
+  spec=$(_vmstat_pages "${1}" "Pages speculative"); active=$(_vmstat_pages "${1}" "Pages active")
+  wired=$(_vmstat_pages "${1}" "Pages wired down"); compressed=$(_vmstat_pages "${1}" "occupied by compressor")
+  free=${free:-0}; inactive=${inactive:-0}; spec=${spec:-0}
+  active=${active:-0}; wired=${wired:-0}; compressed=${compressed:-0}
+  local avail=$(( free + inactive + spec ))
+  local total=$(( free + active + inactive + spec + wired + compressed ))
+  (( total <= 0 )) && { echo 0; return 0; }
+  awk -v a="${avail}" -v t="${total}" 'BEGIN { printf "%.0f", (a / t) * 100 }'
+}
+
+# swap_from_meminfo TEXT -> "<used_kb> <total_kb>" from /proc/meminfo.
+swap_from_meminfo() {
+  printf '%s\n' "${1}" | awk '/SwapTotal:/{t=$2} /SwapFree:/{f=$2} END{print (t+0)-(f+0), t+0}'
+}
+
+# swap_from_sysctl TEXT -> "<used_kb> <total_kb>" from `sysctl vm.swapusage`.
+swap_from_sysctl() {
+  local total used
+  total=$(printf '%s' "${1}" | awk '{for(i=1;i<=NF;i++) if($i=="total"){gsub(/[^0-9.]/,"",$(i+2)); printf "%d",$(i+2)}}')
+  used=$(printf '%s' "${1}" | awk '{for(i=1;i<=NF;i++) if($i=="used"){gsub(/[^0-9.]/,"",$(i+2)); printf "%d",$(i+2)}}')
+  [[ "${total}" =~ ^[0-9]+$ ]] || total=0
+  [[ "${used}" =~ ^[0-9]+$ ]] || used=0
+  echo "$(( used * 1024 )) $(( total * 1024 ))"
+}
+
+# swap_pct USED_KB TOTAL_KB -> integer percent, empty when total is zero.
+swap_pct() {
+  [[ "${1}" =~ ^[0-9]+$ && "${2}" =~ ^[0-9]+$ && "${2}" -gt 0 ]] || { echo ""; return 0; }
+  awk -v u="${1}" -v t="${2}" 'BEGIN { printf "%.0f", (u / t) * 100 }'
+}
+
+_read_swapusage() { sysctl vm.swapusage 2>/dev/null; }
+
+# read_available -> available-memory percent for the host.
+read_available() {
+  if is_linux; then
+    avail_from_meminfo "$(_read_meminfo)"
+  elif is_macos && has_command vm_stat; then
+    avail_from_vmstat "$(_read_vmstat)"
+  else
+    echo 0
+  fi
+}
+
+# read_swap -> swap used percent, empty when there is no swap.
+read_swap() {
+  local used total
+  if is_linux; then
+    read -r used total <<< "$(swap_from_meminfo "$(_read_meminfo)")"
+  elif is_macos; then
+    read -r used total <<< "$(swap_from_sysctl "$(_read_swapusage)")"
+  fi
+  swap_pct "${used:-0}" "${total:-0}"
+}
+
 export -f _meminfo_field
 export -f ram_pct_from_meminfo
 export -f _vmstat_pages
 export -f ram_pct_from_vmstat
+export -f avail_from_meminfo
+export -f avail_from_vmstat
+export -f swap_from_meminfo
+export -f swap_from_sysctl
+export -f swap_pct
 export -f _read_meminfo
 export -f _read_vmstat
+export -f _read_swapusage
 export -f read_ram_percentage
+export -f read_available
+export -f read_swap

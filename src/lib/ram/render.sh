@@ -55,9 +55,27 @@ ram_render_bg() {
   get_tmux_option "@ram_revamped_$(_ram_value_level "${1}")_bg_color" ""
 }
 
+ram_render_swap() {
+  [[ -z "${1}" ]] && { echo ""; return 0; }
+  local fmt
+  fmt=$(get_tmux_option "@ram_revamped_swap_format" "%s%%")
+  # shellcheck disable=SC2059
+  printf "${fmt}" "${1}"
+}
+
+ram_render_available() {
+  [[ -z "${1}" ]] && { echo ""; return 0; }
+  local fmt
+  fmt=$(get_tmux_option "@ram_revamped_available_format" "%s%%")
+  # shellcheck disable=SC2059
+  printf "${fmt}" "${1}"
+}
+
 export -f _ram_level
 export -f _ram_value_level
 export -f ram_render_percentage
 export -f ram_render_icon
 export -f ram_render_fg
 export -f ram_render_bg
+export -f ram_render_swap
+export -f ram_render_available

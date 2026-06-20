@@ -20,6 +20,8 @@ Inspired by the RAM metrics in
 | `#{ram_icon}` | a tier icon for the current usage |
 | `#{ram_fg_color}` | foreground color for the current tier |
 | `#{ram_bg_color}` | background color for the current tier |
+| `#{ram_available}` | available memory percent, for example `40%` |
+| `#{ram_swap}` | swap used percent, empty when there is no swap |
 
 ## Install
 
@@ -49,7 +51,13 @@ Press `prefix + I` to install.
 | `@ram_revamped_low_bg_color` | empty | background for the low tier |
 | `@ram_revamped_medium_bg_color` | empty | background for the medium tier |
 | `@ram_revamped_high_bg_color` | empty | background for the high tier |
+| `@ram_revamped_available_format` | `%s%%` | format for available memory |
+| `@ram_revamped_swap_format` | `%s%%` | format for swap usage |
 | `@ram_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/ram-revamped-logs` |
+
+The wired/compressed/free memory breakdown that yoru exposes in its interactive
+dashboard is intentionally not a status placeholder here, since it is a
+four-field diagnostic rather than a single status value.
 
 ## Support by platform and architecture
 

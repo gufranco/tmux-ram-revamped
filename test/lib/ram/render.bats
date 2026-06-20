@@ -67,3 +67,17 @@ teardown() {
 @test "render.sh - ram_render_bg is empty on cold start" {
   [[ -z "$(ram_render_bg "")" ]]
 }
+
+@test "render.sh - ram_render_swap formats with default and custom" {
+  [[ -z "$(ram_render_swap "")" ]]
+  [[ "$(ram_render_swap 25)" == "25%" ]]
+  set_tmux_option "@ram_revamped_swap_format" "swap %s%%"
+  [[ "$(ram_render_swap 25)" == "swap 25%" ]]
+}
+
+@test "render.sh - ram_render_available formats with default and custom" {
+  [[ -z "$(ram_render_available "")" ]]
+  [[ "$(ram_render_available 40)" == "40%" ]]
+  set_tmux_option "@ram_revamped_available_format" "free %s%%"
+  [[ "$(ram_render_available 40)" == "free 40%" ]]
+}

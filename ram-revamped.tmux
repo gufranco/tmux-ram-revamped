@@ -13,6 +13,8 @@ placeholders=(
   "\#{ram_icon}"
   "\#{ram_fg_color}"
   "\#{ram_bg_color}"
+  "\#{ram_available}"
+  "\#{ram_swap}"
 )
 
 commands=(
@@ -20,6 +22,8 @@ commands=(
   "#(${RAM_CMD} icon)"
   "#(${RAM_CMD} fg_color)"
   "#(${RAM_CMD} bg_color)"
+  "#(${RAM_CMD} available)"
+  "#(${RAM_CMD} swap)"
 )
 
 interpolate() {

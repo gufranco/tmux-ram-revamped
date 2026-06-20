@@ -66,3 +66,72 @@ teardown() {
   _PLATFORM_OS_CACHE="Plan9"
   [[ "$(read_ram_percentage)" == "0" ]]
 }
+
+@test "ram.sh - avail_from_meminfo computes available percent" {
+  local txt=$'MemTotal: 1000 kB\nMemAvailable: 250 kB'
+  [[ "$(avail_from_meminfo "${txt}")" == "25" ]]
+  [[ "$(avail_from_meminfo "")" == "0" ]]
+}
+
+@test "ram.sh - avail_from_vmstat computes available percent" {
+  local txt=$'Pages free: 100.\nPages active: 300.\nPages inactive: 100.\nPages speculative: 0.\nPages wired down: 100.\nPages occupied by compressor: 0.'
+  [[ "$(avail_from_vmstat "${txt}")" == "33" ]]
+  [[ "$(avail_from_vmstat "")" == "0" ]]
+}
+
+@test "ram.sh - swap_from_meminfo computes used and total" {
+  local txt=$'SwapTotal: 2048 kB\nSwapFree: 512 kB'
+  [[ "$(swap_from_meminfo "${txt}")" == "1536 2048" ]]
+}
+
+@test "ram.sh - swap_from_sysctl parses vm.swapusage" {
+  [[ "$(swap_from_sysctl 'vm.swapusage: total = 2048.00M  used = 512.00M  free = 1536.00M')" == "524288 2097152" ]]
+}
+
+@test "ram.sh - swap_pct computes percent and handles empty swap" {
+  [[ "$(swap_pct 512 2048)" == "25" ]]
+  [[ -z "$(swap_pct 0 0)" ]]
+}
+
+@test "ram.sh - read_available uses meminfo on Linux" {
+  _PLATFORM_OS_CACHE="Linux"
+  _read_meminfo() { printf 'MemTotal: 1000 kB\nMemAvailable: 400 kB\n'; }
+  [[ "$(read_available)" == "40" ]]
+}
+
+@test "ram.sh - read_available uses vm_stat on macOS" {
+  _PLATFORM_OS_CACHE="Darwin"
+  has_command() { return 0; }
+  _read_vmstat() { printf 'Pages free: 100.\nPages active: 300.\nPages inactive: 100.\nPages speculative: 0.\nPages wired down: 100.\nPages occupied by compressor: 0.\n'; }
+  [[ "$(read_available)" == "33" ]]
+}
+
+@test "ram.sh - read_available is 0 on an unknown platform" {
+  _PLATFORM_OS_CACHE="Plan9"
+  [[ "$(read_available)" == "0" ]]
+}
+
+@test "ram.sh - read_swap reads meminfo on Linux" {
+  _PLATFORM_OS_CACHE="Linux"
+  _read_meminfo() { printf 'SwapTotal: 2048 kB\nSwapFree: 1024 kB\n'; }
+  [[ "$(read_swap)" == "50" ]]
+}
+
+@test "ram.sh - read_swap reads sysctl on macOS" {
+  _PLATFORM_OS_CACHE="Darwin"
+  _read_swapusage() { echo 'vm.swapusage: total = 2048.00M  used = 1024.00M  free = 1024.00M'; }
+  [[ "$(read_swap)" == "50" ]]
+}
+
+@test "ram.sh - read_swap is empty without swap" {
+  _PLATFORM_OS_CACHE="Linux"
+  _read_meminfo() { printf 'SwapTotal: 0 kB\nSwapFree: 0 kB\n'; }
+  [[ -z "$(read_swap)" ]]
+}
+
+@test "ram.sh - host-probe seams are callable" {
+  run _read_meminfo
+  run _read_vmstat
+  run _read_swapusage
+  true
+}

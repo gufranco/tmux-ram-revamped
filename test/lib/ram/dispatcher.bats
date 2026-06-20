@@ -10,6 +10,7 @@ setup() {
   read_ram_percentage() { echo "60"; }
   read_available() { echo "40"; }
   read_swap() { echo "25"; }
+  read_pressure() { echo "12"; }
   read_breakdown() { echo "2048 1024 3072 4096"; }
 }
 
@@ -38,6 +39,7 @@ teardown() {
   [[ "$(cache_get percent)" == "60" ]]
   [[ "$(cache_get available)" == "40" ]]
   [[ "$(cache_get swap)" == "25" ]]
+  [[ "$(cache_get pressure)" == "12" ]]
 }
 
 @test "ram.sh dispatcher - available and swap subcommands render the cache" {
@@ -45,6 +47,11 @@ teardown() {
   [[ "${output}" == "40%" ]]
   run main swap
   [[ "${output}" == "25%" ]]
+}
+
+@test "ram.sh dispatcher - pressure subcommand renders the cache" {
+  run main pressure
+  [[ "${output}" == "12%" ]]
 }
 
 @test "ram.sh dispatcher - breakdown subcommand renders the cache" {

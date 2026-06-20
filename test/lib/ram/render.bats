@@ -82,6 +82,13 @@ teardown() {
   [[ "$(ram_render_available 40)" == "free 40%" ]]
 }
 
+@test "render.sh - ram_render_pressure formats with default and custom" {
+  [[ -z "$(ram_render_pressure "")" ]]
+  [[ "$(ram_render_pressure 12)" == "12%" ]]
+  set_tmux_option "@ram_revamped_pressure_format" "stall %s%%"
+  [[ "$(ram_render_pressure 12)" == "stall 12%" ]]
+}
+
 @test "render.sh - _ram_mb_to_gb converts megabytes" {
   [[ "$(_ram_mb_to_gb 2048)" == "2.0" ]]
   [[ "$(_ram_mb_to_gb 512)" == "0.5" ]]

@@ -131,7 +131,19 @@ swap_pct() {
   awk -v u="${1}" -v t="${2}" 'BEGIN { printf "%.0f", (u / t) * 100 }'
 }
 
+# psi_from_text TEXT -> integer `some avg10` percent from /proc/pressure/memory.
+psi_from_text() {
+  printf '%s\n' "${1}" | awk '/^some / { for (i = 1; i <= NF; i++) if ($i ~ /^avg10=/) { sub(/^avg10=/, "", $i); printf "%.0f", $i; exit } }'
+}
+
+# pressure_from_macos TEXT -> integer free percent from `memory_pressure`.
+pressure_from_macos() {
+  printf '%s\n' "${1}" | awk '/free percentage:/ { for (i = 1; i <= NF; i++) if ($i ~ /%/) { gsub(/[^0-9]/, "", $i); printf "%s", $i; exit } }'
+}
+
 _read_swapusage() { sysctl vm.swapusage 2>/dev/null; }
+_read_psi_memory() { cat /proc/pressure/memory 2>/dev/null; }
+_read_memory_pressure_macos() { memory_pressure 2>/dev/null; }
 
 # read_available -> available-memory percent for the host.
 read_available() {
@@ -155,6 +167,15 @@ read_swap() {
   swap_pct "${used:-0}" "${total:-0}"
 }
 
+# read_pressure -> memory-pressure integer for the host, empty when unavailable.
+read_pressure() {
+  if is_linux; then
+    psi_from_text "$(_read_psi_memory)"
+  elif is_macos && has_command memory_pressure; then
+    pressure_from_macos "$(_read_memory_pressure_macos)"
+  fi
+}
+
 export -f _meminfo_field
 export -f ram_pct_from_meminfo
 export -f _vmstat_pages
@@ -164,13 +185,18 @@ export -f avail_from_vmstat
 export -f swap_from_meminfo
 export -f swap_from_sysctl
 export -f swap_pct
+export -f psi_from_text
+export -f pressure_from_macos
 export -f breakdown_from_vmstat
 export -f breakdown_from_meminfo
 export -f _read_meminfo
 export -f _read_vmstat
 export -f _read_pagesize
 export -f _read_swapusage
+export -f _read_psi_memory
+export -f _read_memory_pressure_macos
 export -f read_ram_percentage
 export -f read_available
 export -f read_swap
+export -f read_pressure
 export -f read_breakdown

@@ -15,6 +15,7 @@ placeholders=(
   "\#{ram_bg_color}"
   "\#{ram_available}"
   "\#{ram_swap}"
+  "\#{ram_pressure}"
   "\#{ram_breakdown}"
 )
 
@@ -25,6 +26,7 @@ commands=(
   "#(${RAM_CMD} bg_color)"
   "#(${RAM_CMD} available)"
   "#(${RAM_CMD} swap)"
+  "#(${RAM_CMD} pressure)"
   "#(${RAM_CMD} breakdown)"
 )
 

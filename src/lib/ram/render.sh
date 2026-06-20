@@ -71,6 +71,14 @@ ram_render_available() {
   printf "${fmt}" "${1}"
 }
 
+ram_render_pressure() {
+  [[ -z "${1}" ]] && { echo ""; return 0; }
+  local fmt
+  fmt=$(get_tmux_option "@ram_revamped_pressure_format" "%s%%")
+  # shellcheck disable=SC2059
+  printf "${fmt}" "${1}"
+}
+
 _ram_mb_to_gb() {
   awk -v m="${1:-0}" 'BEGIN { printf "%.1f", m / 1024 }'
 }
@@ -92,5 +100,6 @@ export -f ram_render_fg
 export -f ram_render_bg
 export -f ram_render_swap
 export -f ram_render_available
+export -f ram_render_pressure
 export -f _ram_mb_to_gb
 export -f ram_render_breakdown

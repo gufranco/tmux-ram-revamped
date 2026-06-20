@@ -129,6 +129,47 @@ teardown() {
   [[ -z "$(read_swap)" ]]
 }
 
+@test "ram.sh - psi_from_text extracts the some avg10 integer" {
+  local txt=$'some avg10=2.34 avg60=1.10 avg300=0.50 total=12345\nfull avg10=1.00 avg60=0.50 avg300=0.20 total=6789'
+  [[ "$(psi_from_text "${txt}")" == "2" ]]
+}
+
+@test "ram.sh - psi_from_text is empty without a some line" {
+  [[ -z "$(psi_from_text "")" ]]
+}
+
+@test "ram.sh - pressure_from_macos extracts the free percentage" {
+  [[ "$(pressure_from_macos 'System-wide memory free percentage: 43%')" == "43" ]]
+}
+
+@test "ram.sh - pressure_from_macos is empty without the line" {
+  [[ -z "$(pressure_from_macos "")" ]]
+}
+
+@test "ram.sh - read_pressure reads PSI on Linux" {
+  _PLATFORM_OS_CACHE="Linux"
+  _read_psi_memory() { printf 'some avg10=5.00 avg60=2.00 avg300=1.00 total=1\nfull avg10=0.00 avg60=0.00 avg300=0.00 total=0\n'; }
+  [[ "$(read_pressure)" == "5" ]]
+}
+
+@test "ram.sh - read_pressure reads memory_pressure on macOS" {
+  _PLATFORM_OS_CACHE="Darwin"
+  has_command() { return 0; }
+  _read_memory_pressure_macos() { printf 'System-wide memory free percentage: 60%%\n'; }
+  [[ "$(read_pressure)" == "60" ]]
+}
+
+@test "ram.sh - read_pressure is empty on macOS without memory_pressure" {
+  _PLATFORM_OS_CACHE="Darwin"
+  has_command() { return 1; }
+  [[ -z "$(read_pressure)" ]]
+}
+
+@test "ram.sh - read_pressure is empty on an unknown platform" {
+  _PLATFORM_OS_CACHE="Plan9"
+  [[ -z "$(read_pressure)" ]]
+}
+
 @test "ram.sh - breakdown_from_vmstat converts pages to megabytes" {
   local txt=$'Pages free: 4.\nPages active: 9.\nPages inactive: 3.\nPages wired down: 2.\nPages occupied by compressor: 1.'
   [[ "$(breakdown_from_vmstat "${txt}" 1048576)" == "2 1 3 4" ]]
@@ -158,5 +199,7 @@ teardown() {
   run _read_vmstat
   run _read_swapusage
   run _read_pagesize
+  run _read_psi_memory
+  run _read_memory_pressure_macos
   true
 }

@@ -8,7 +8,7 @@
 
 </div>
 
-**7** placeholders · **2** platforms · **102** tests · **95%+** coverage
+**8** placeholders · **2** platforms · **112** tests · **95%+** coverage
 
 Shows RAM usage, available memory, swap, and a memory breakdown in your tmux status bar. The value is read from a tmux server user-option and returns instantly, while a detached worker recomputes it in the background. No temp files are used; all state lives in tmux options.
 
@@ -21,7 +21,7 @@ Inspired by the RAM metrics in [tmux-cpu](https://github.com/tmux-plugins/tmux-c
 </tr>
 <tr>
 <td><b>Cross-platform</b><br>Runs on Linux and macOS, Intel and Apple Silicon, with built-in tools only.</td>
-<td><b>Tested</b><br>102 tests with 95%+ coverage on every supported platform.</td>
+<td><b>Tested</b><br>112 tests with 95%+ coverage on every supported platform.</td>
 </tr>
 </table>
 
@@ -35,6 +35,7 @@ Inspired by the RAM metrics in [tmux-cpu](https://github.com/tmux-plugins/tmux-c
 | `#{ram_bg_color}` | background color for the current tier |
 | `#{ram_available}` | available memory percent, for example `40%` |
 | `#{ram_swap}` | swap used percent, empty when there is no swap |
+| `#{ram_pressure}` | memory-pressure metric, for example `2%` |
 | `#{ram_breakdown}` | memory composition, for example `W 3.2G C 1.1G I 2.0G F 4.5G` |
 
 ## Install
@@ -67,12 +68,19 @@ Press `prefix + I` to install.
 | `@ram_revamped_high_bg_color` | empty | background for the high tier |
 | `@ram_revamped_available_format` | `%s%%` | format for available memory |
 | `@ram_revamped_swap_format` | `%s%%` | format for swap usage |
+| `@ram_revamped_pressure_format` | `%s%%` | format for the memory-pressure metric |
 | `@ram_revamped_breakdown_format` | `W %sG C %sG I %sG F %sG` | format for the memory breakdown (four values: wired, compressed, inactive, free) |
 | `@ram_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/ram-revamped-logs` |
 
 The `#{ram_breakdown}` placeholder reports the memory composition: wired,
 compressed, inactive, and free in gigabytes. On macOS these come from `vm_stat`
 and match Activity Monitor; on Linux they map to buffers, zero, cached, and free.
+
+The `#{ram_pressure}` placeholder reports a memory-pressure metric. On Linux it
+is the `some avg10` value from `/proc/pressure/memory`, the percent of time
+memory was stalled in the last ten seconds. On macOS it is the free percent
+reported by the native `memory_pressure` tool. The placeholder is empty when the
+source is unavailable.
 
 ## Support by platform and architecture
 

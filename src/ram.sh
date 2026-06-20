@@ -32,6 +32,7 @@ ram_refresh() {
   cache_set percent "$(read_ram_percentage)"
   cache_set available "$(read_available)"
   cache_set swap "$(read_swap)"
+  cache_set pressure "$(read_pressure)"
   cache_set breakdown "$(read_breakdown)"
 }
 
@@ -56,6 +57,7 @@ main() {
     bg_color)   ram_render_bg "$(cache_get percent)" ;;
     available)  ram_render_available "$(cache_get available)" ;;
     swap)       ram_render_swap "$(cache_get swap)" ;;
+    pressure)   ram_render_pressure "$(cache_get pressure)" ;;
     breakdown)  ram_render_breakdown "$(cache_get breakdown)" ;;
     *)          return 0 ;;
   esac

@@ -22,6 +22,7 @@ Inspired by the RAM metrics in
 | `#{ram_bg_color}` | background color for the current tier |
 | `#{ram_available}` | available memory percent, for example `40%` |
 | `#{ram_swap}` | swap used percent, empty when there is no swap |
+| `#{ram_breakdown}` | memory composition, for example `W 3.2G C 1.1G I 2.0G F 4.5G` |
 
 ## Install
 
@@ -53,11 +54,12 @@ Press `prefix + I` to install.
 | `@ram_revamped_high_bg_color` | empty | background for the high tier |
 | `@ram_revamped_available_format` | `%s%%` | format for available memory |
 | `@ram_revamped_swap_format` | `%s%%` | format for swap usage |
+| `@ram_revamped_breakdown_format` | `W %sG C %sG I %sG F %sG` | format for the memory breakdown (four values: wired, compressed, inactive, free) |
 | `@ram_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/ram-revamped-logs` |
 
-The wired/compressed/free memory breakdown that yoru exposes in its interactive
-dashboard is intentionally not a status placeholder here, since it is a
-four-field diagnostic rather than a single status value.
+The `#{ram_breakdown}` placeholder reports the memory composition: wired,
+compressed, inactive, and free in gigabytes. On macOS these come from `vm_stat`
+and match Activity Monitor; on Linux they map to buffers, zero, cached, and free.
 
 ## Support by platform and architecture
 

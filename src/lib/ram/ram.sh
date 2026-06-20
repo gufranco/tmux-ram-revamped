@@ -51,9 +51,30 @@ ram_pct_from_vmstat() {
   awk -v u="${used}" -v t="${total}" 'BEGIN { printf "%.0f", (u / t) * 100 }'
 }
 
+# breakdown_from_vmstat TEXT PAGESIZE -> "wired compressed inactive free" in MB.
+breakdown_from_vmstat() {
+  local ps="${2:-4096}"
+  printf '%s\n' "${1}" | awk -v ps="${ps}" '/Pages wired down:/{w=$NF} /occupied by compressor:/{c=$NF} /Pages inactive:/{i=$NF} /Pages free:/{f=$NF} END{gsub(/\./,"",w);gsub(/\./,"",c);gsub(/\./,"",i);gsub(/\./,"",f); printf "%d %d %d %d", (w+0)*ps/1048576, (c+0)*ps/1048576, (i+0)*ps/1048576, (f+0)*ps/1048576}'
+}
+
+# breakdown_from_meminfo TEXT -> "buffers 0 cached free" in MB, the Linux mapping.
+breakdown_from_meminfo() {
+  printf '%s\n' "${1}" | awk '/MemFree:/{f=$2} /^Cached:/{c=$2} /Buffers:/{b=$2} END{printf "%d %d %d %d", (b+0)/1024, 0, (c+0)/1024, (f+0)/1024}'
+}
+
 # Host-probe seams. Tests override these.
 _read_meminfo() { cat /proc/meminfo 2>/dev/null; }
 _read_vmstat() { vm_stat 2>/dev/null; }
+_read_pagesize() { pagesize 2>/dev/null || sysctl -n hw.pagesize 2>/dev/null || echo 4096; }
+
+# read_breakdown -> "wired compressed inactive free" in MB for the host.
+read_breakdown() {
+  if is_linux; then
+    breakdown_from_meminfo "$(_read_meminfo)"
+  elif is_macos && has_command vm_stat; then
+    breakdown_from_vmstat "$(_read_vmstat)" "$(_read_pagesize)"
+  fi
+}
 
 # read_ram_percentage -> used-memory percent for the host.
 read_ram_percentage() {
@@ -143,9 +164,13 @@ export -f avail_from_vmstat
 export -f swap_from_meminfo
 export -f swap_from_sysctl
 export -f swap_pct
+export -f breakdown_from_vmstat
+export -f breakdown_from_meminfo
 export -f _read_meminfo
 export -f _read_vmstat
+export -f _read_pagesize
 export -f _read_swapusage
 export -f read_ram_percentage
 export -f read_available
 export -f read_swap
+export -f read_breakdown

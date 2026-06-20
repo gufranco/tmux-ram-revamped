@@ -10,6 +10,7 @@ setup() {
   read_ram_percentage() { echo "60"; }
   read_available() { echo "40"; }
   read_swap() { echo "25"; }
+  read_breakdown() { echo "2048 1024 3072 4096"; }
 }
 
 teardown() {
@@ -44,6 +45,11 @@ teardown() {
   [[ "${output}" == "40%" ]]
   run main swap
   [[ "${output}" == "25%" ]]
+}
+
+@test "ram.sh dispatcher - breakdown subcommand renders the cache" {
+  run main breakdown
+  [[ "${output}" == "W 2.0G C 1.0G I 3.0G F 4.0G" ]]
 }
 
 @test "ram.sh dispatcher - refresh subcommand caches the percentage" {

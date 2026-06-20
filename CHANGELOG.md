@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Available-memory placeholder `#{ram_available}` and swap-usage placeholder
   `#{ram_swap}`.
+- Memory breakdown placeholder `#{ram_breakdown}` (wired, compressed, inactive,
+  free) from vm_stat on macOS and /proc/meminfo on Linux.
 - macOS swap via `sysctl vm.swapusage`, Linux swap via `/proc/meminfo`.
 
 ## [1.0.0] - 2026-06-19

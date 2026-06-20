@@ -71,6 +71,19 @@ ram_render_available() {
   printf "${fmt}" "${1}"
 }
 
+_ram_mb_to_gb() {
+  awk -v m="${1:-0}" 'BEGIN { printf "%.1f", m / 1024 }'
+}
+
+ram_render_breakdown() {
+  [[ -z "${1}" ]] && { echo ""; return 0; }
+  local w c i f fmt
+  read -r w c i f <<< "${1}"
+  fmt=$(get_tmux_option "@ram_revamped_breakdown_format" "W %sG C %sG I %sG F %sG")
+  # shellcheck disable=SC2059
+  printf "${fmt}" "$(_ram_mb_to_gb "${w}")" "$(_ram_mb_to_gb "${c}")" "$(_ram_mb_to_gb "${i}")" "$(_ram_mb_to_gb "${f}")"
+}
+
 export -f _ram_level
 export -f _ram_value_level
 export -f ram_render_percentage
@@ -79,3 +92,5 @@ export -f ram_render_fg
 export -f ram_render_bg
 export -f ram_render_swap
 export -f ram_render_available
+export -f _ram_mb_to_gb
+export -f ram_render_breakdown

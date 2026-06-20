@@ -129,9 +129,34 @@ teardown() {
   [[ -z "$(read_swap)" ]]
 }
 
+@test "ram.sh - breakdown_from_vmstat converts pages to megabytes" {
+  local txt=$'Pages free: 4.\nPages active: 9.\nPages inactive: 3.\nPages wired down: 2.\nPages occupied by compressor: 1.'
+  [[ "$(breakdown_from_vmstat "${txt}" 1048576)" == "2 1 3 4" ]]
+}
+
+@test "ram.sh - breakdown_from_meminfo maps the Linux fields" {
+  local txt=$'MemFree: 4096 kB\nCached: 3072 kB\nBuffers: 2048 kB'
+  [[ "$(breakdown_from_meminfo "${txt}")" == "2 0 3 4" ]]
+}
+
+@test "ram.sh - read_breakdown reads meminfo on Linux" {
+  _PLATFORM_OS_CACHE="Linux"
+  _read_meminfo() { printf 'MemFree: 4096 kB\nCached: 3072 kB\nBuffers: 2048 kB\n'; }
+  [[ "$(read_breakdown)" == "2 0 3 4" ]]
+}
+
+@test "ram.sh - read_breakdown reads vm_stat on macOS" {
+  _PLATFORM_OS_CACHE="Darwin"
+  has_command() { return 0; }
+  _read_vmstat() { printf 'Pages free: 4.\nPages inactive: 3.\nPages wired down: 2.\nPages occupied by compressor: 1.\n'; }
+  _read_pagesize() { echo 1048576; }
+  [[ "$(read_breakdown)" == "2 1 3 4" ]]
+}
+
 @test "ram.sh - host-probe seams are callable" {
   run _read_meminfo
   run _read_vmstat
   run _read_swapusage
+  run _read_pagesize
   true
 }

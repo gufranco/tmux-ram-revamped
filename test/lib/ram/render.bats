@@ -81,3 +81,13 @@ teardown() {
   set_tmux_option "@ram_revamped_available_format" "free %s%%"
   [[ "$(ram_render_available 40)" == "free 40%" ]]
 }
+
+@test "render.sh - _ram_mb_to_gb converts megabytes" {
+  [[ "$(_ram_mb_to_gb 2048)" == "2.0" ]]
+  [[ "$(_ram_mb_to_gb 512)" == "0.5" ]]
+}
+
+@test "render.sh - ram_render_breakdown formats the composition" {
+  [[ -z "$(ram_render_breakdown "")" ]]
+  [[ "$(ram_render_breakdown "2048 1024 3072 4096")" == "W 2.0G C 1.0G I 3.0G F 4.0G" ]]
+}

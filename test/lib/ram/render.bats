@@ -68,6 +68,56 @@ teardown() {
   [[ -z "$(ram_render_bg "")" ]]
 }
 
+@test "render.sh - ram_render_fg passes a named color through verbatim" {
+  set_tmux_option "@ram_revamped_high_fg_color" "#[fg=red]"
+  [[ "$(ram_render_fg 95)" == "#[fg=red]" ]]
+}
+
+@test "render.sh - ram_render_fg passes a 256 color through verbatim" {
+  set_tmux_option "@ram_revamped_high_fg_color" "#[fg=colour203]"
+  [[ "$(ram_render_fg 95)" == "#[fg=colour203]" ]]
+}
+
+@test "render.sh - ram_render_fg passes a hex color through verbatim" {
+  set_tmux_option "@ram_revamped_high_fg_color" "#[fg=#f38ba8]"
+  [[ "$(ram_render_fg 95)" == "#[fg=#f38ba8]" ]]
+}
+
+@test "render.sh - ram_render_fg passes a hex fg and bg pair through verbatim" {
+  set_tmux_option "@ram_revamped_high_fg_color" "#[fg=#f38ba8,bg=#1e1e2e]"
+  [[ "$(ram_render_fg 95)" == "#[fg=#f38ba8,bg=#1e1e2e]" ]]
+}
+
+@test "render.sh - ram_render_fg passes a bright color through verbatim" {
+  set_tmux_option "@ram_revamped_high_fg_color" "#[fg=brightred]"
+  [[ "$(ram_render_fg 95)" == "#[fg=brightred]" ]]
+}
+
+@test "render.sh - ram_render_bg passes a named color through verbatim" {
+  set_tmux_option "@ram_revamped_high_bg_color" "#[bg=red]"
+  [[ "$(ram_render_bg 95)" == "#[bg=red]" ]]
+}
+
+@test "render.sh - ram_render_bg passes a 256 color through verbatim" {
+  set_tmux_option "@ram_revamped_high_bg_color" "#[bg=colour203]"
+  [[ "$(ram_render_bg 95)" == "#[bg=colour203]" ]]
+}
+
+@test "render.sh - ram_render_bg passes a hex color through verbatim" {
+  set_tmux_option "@ram_revamped_high_bg_color" "#[bg=#f38ba8]"
+  [[ "$(ram_render_bg 95)" == "#[bg=#f38ba8]" ]]
+}
+
+@test "render.sh - ram_render_bg passes a hex fg and bg pair through verbatim" {
+  set_tmux_option "@ram_revamped_high_bg_color" "#[fg=#f38ba8,bg=#1e1e2e]"
+  [[ "$(ram_render_bg 95)" == "#[fg=#f38ba8,bg=#1e1e2e]" ]]
+}
+
+@test "render.sh - ram_render_bg passes a bright color through verbatim" {
+  set_tmux_option "@ram_revamped_high_bg_color" "#[bg=brightred]"
+  [[ "$(ram_render_bg 95)" == "#[bg=brightred]" ]]
+}
+
 @test "render.sh - ram_render_swap formats with default and custom" {
   [[ -z "$(ram_render_swap "")" ]]
   [[ "$(ram_render_swap 25)" == "25%" ]]

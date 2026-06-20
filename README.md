@@ -72,6 +72,58 @@ Press `prefix + I` to install.
 | `@ram_revamped_breakdown_format` | `W %sG C %sG I %sG F %sG` | format for the memory breakdown (four values: wired, compressed, inactive, free) |
 | `@ram_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/ram-revamped-logs` |
 
+## Theme color suggestions
+
+The tier colors default to the 16 ANSI names, which the active theme remaps, so the plugin matches any theme out of the box; for exact hex copy one block below.
+
+### Catppuccin Mocha
+
+```tmux
+set -g @ram_revamped_low_fg_color '#[fg=#a6e3a1]'
+set -g @ram_revamped_medium_fg_color '#[fg=#f9e2af]'
+set -g @ram_revamped_high_fg_color '#[fg=#f38ba8]'
+```
+
+### Dracula
+
+```tmux
+set -g @ram_revamped_low_fg_color '#[fg=#50fa7b]'
+set -g @ram_revamped_medium_fg_color '#[fg=#f1fa8c]'
+set -g @ram_revamped_high_fg_color '#[fg=#ff5555]'
+```
+
+### Nord
+
+```tmux
+set -g @ram_revamped_low_fg_color '#[fg=#a3be8c]'
+set -g @ram_revamped_medium_fg_color '#[fg=#ebcb8b]'
+set -g @ram_revamped_high_fg_color '#[fg=#bf616a]'
+```
+
+### Gruvbox Dark
+
+```tmux
+set -g @ram_revamped_low_fg_color '#[fg=#b8bb26]'
+set -g @ram_revamped_medium_fg_color '#[fg=#fabd2f]'
+set -g @ram_revamped_high_fg_color '#[fg=#fb4934]'
+```
+
+### Tokyo Night
+
+```tmux
+set -g @ram_revamped_low_fg_color '#[fg=#9ece6a]'
+set -g @ram_revamped_medium_fg_color '#[fg=#e0af68]'
+set -g @ram_revamped_high_fg_color '#[fg=#f7768e]'
+```
+
+### Solarized Dark
+
+```tmux
+set -g @ram_revamped_low_fg_color '#[fg=#859900]'
+set -g @ram_revamped_medium_fg_color '#[fg=#b58900]'
+set -g @ram_revamped_high_fg_color '#[fg=#dc322f]'
+```
+
 The `#{ram_breakdown}` placeholder reports the memory composition: wired,
 compressed, inactive, and free in gigabytes. On macOS these come from `vm_stat`
 and match Activity Monitor; on Linux they map to buffers, zero, cached, and free.

@@ -1,5 +1,7 @@
 # tmux-ram-revamped
 
+[![Tests](https://github.com/gufranco/tmux-ram-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/gufranco/tmux-ram-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 RAM usage for your tmux status bar, without ever blocking the status render.
 
 The value is read from a tmux server user-option and returns instantly, while a
@@ -49,12 +51,15 @@ Press `prefix + I` to install.
 | `@ram_revamped_high_bg_color` | empty | background for the high tier |
 | `@ram_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/ram-revamped-logs` |
 
-## Platform support
+## Support by platform and architecture
+
+Works on every supported platform and architecture with built-in tools, no extra
+package required.
 
 | Platform | Source |
 |----------|--------|
-| macOS | `vm_stat` page counts |
-| Linux | `/proc/meminfo`, used = total minus available |
+| macOS (Intel and Apple Silicon) | `vm_stat` page counts |
+| Linux (x86_64 and arm64) | `/proc/meminfo`, used is total minus available |
 
 ## License
 

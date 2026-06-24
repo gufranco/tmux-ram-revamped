@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-06-23
+
+### Changed
+
+- Reviewed the upstream `tmux-plugins/tmux-cpu` memory issues and pull requests.
+  Confirmed `#{ram_percentage}` and `#{ram_breakdown}` cover the used and total
+  reporting (#101), that memory is read from `/proc/meminfo` directly rather than
+  parsing `free` so the GNU and BSD output difference cannot bite (#84), and that
+  swap reporting is already shipped (PR #68). Load average lives in the companion
+  `tmux-cpu-revamped` plugin via `#{cpu_load}`.
+
 ## [1.2.0] - 2026-06-20
 
 ### Added

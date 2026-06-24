@@ -78,3 +78,18 @@ teardown() {
   run main bogus
   [[ -z "${output}" ]]
 }
+
+@test "ram.sh dispatcher - every subcommand dispatches via a direct call" {
+  local out
+  out=$(main percentage); [[ "${out}" == "60%" ]]
+  out=$(main icon); [[ -n "${out}" ]]
+  out=$(main fg_color)
+  out=$(main bg_color)
+  out=$(main available); [[ "${out}" == "40%" ]]
+  out=$(main swap); [[ "${out}" == "25%" ]]
+  out=$(main pressure); [[ "${out}" == "12%" ]]
+  out=$(main breakdown); [[ "${out}" == "W 2.0G C 1.0G I 3.0G F 4.0G" ]]
+  out=$(main bogus); [[ -z "${out}" ]]
+  main refresh
+  [[ "$(cache_get percent)" == "60" ]]
+}

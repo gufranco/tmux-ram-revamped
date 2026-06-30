@@ -4,6 +4,7 @@
 #
 # Replaces the #{ram_*} placeholders in status-left and status-right with calls
 # to the dispatcher, which reads cached values and never blocks the render.
+# Also binds a key to open the detail popup.
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RAM_CMD="${PLUGIN_DIR}/src/ram.sh"
@@ -15,8 +16,17 @@ placeholders=(
   "\#{ram_bg_color}"
   "\#{ram_available}"
   "\#{ram_swap}"
+  "\#{ram_swap_icon}"
+  "\#{ram_swap_color}"
   "\#{ram_pressure}"
   "\#{ram_breakdown}"
+  "\#{ram_absolute}"
+  "\#{ram_commit}"
+  "\#{ram_reclaimable}"
+  "\#{ram_top_process}"
+  "\#{ram_graph}"
+  "\#{ram_trend}"
+  "\#{ram_text}"
 )
 
 commands=(
@@ -26,8 +36,17 @@ commands=(
   "#(${RAM_CMD} bg_color)"
   "#(${RAM_CMD} available)"
   "#(${RAM_CMD} swap)"
+  "#(${RAM_CMD} swap_icon)"
+  "#(${RAM_CMD} swap_color)"
   "#(${RAM_CMD} pressure)"
   "#(${RAM_CMD} breakdown)"
+  "#(${RAM_CMD} absolute)"
+  "#(${RAM_CMD} commit)"
+  "#(${RAM_CMD} reclaimable)"
+  "#(${RAM_CMD} top_process)"
+  "#(${RAM_CMD} graph)"
+  "#(${RAM_CMD} trend)"
+  "#(${RAM_CMD} text)"
 )
 
 interpolate() {
@@ -46,7 +65,15 @@ update_option() {
   tmux set-option -gq "${option}" "$(interpolate "${current}")"
 }
 
+bind_popup() {
+  local key
+  key=$(tmux show-option -gqv "@ram_revamped_popup_key")
+  [[ -z "${key}" ]] && key="M"
+  tmux bind-key "${key}" run-shell "${RAM_CMD} popup"
+}
+
 chmod +x "${RAM_CMD}" 2>/dev/null || true
 
 update_option "status-left"
 update_option "status-right"
+bind_popup

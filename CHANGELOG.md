@@ -5,6 +5,22 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-29
+
+### Added
+
+- History sparkline `#{ram_graph}` and trend arrow `#{ram_trend}`, backed by a
+  bounded ring buffer stored in a tmux user-option rather than a temp file.
+- Absolute used over total `#{ram_absolute}` with auto-scaling units.
+- Top memory process `#{ram_top_process}`.
+- Commit ratio `#{ram_commit}` and reclaimable cache figure `#{ram_reclaimable}`
+  on Linux for early OOM and cache-pressure context.
+- Swap-active warning icon and color, `#{ram_swap_icon}` and `#{ram_swap_color}`.
+- Glyph-free `#{ram_text}` line for screen readers and no-Nerd-Font terminals.
+- Detail popup on `prefix + M` that opens a memory monitor through a mockable
+  tmux seam, with a window fallback on tmux older than 3.2.
+- `doctor` subcommand reporting the detected platform, sources, and tools.
+
 ## [1.2.1] - 2026-06-23
 
 ### Changed

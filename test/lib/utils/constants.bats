@@ -1,0 +1,26 @@
+#!/usr/bin/env bats
+
+load "${BATS_TEST_DIRNAME}/../../helpers.bash"
+
+setup() {
+  setup_test_environment
+}
+
+teardown() {
+  cleanup_test_environment
+}
+
+@test "constants.sh - exposes the plugin version" {
+  unset _TMUX_PLUGIN_CONSTANTS_LOADED
+  source "${BATS_TEST_DIRNAME}/../../../src/lib/utils/constants.sh"
+  [[ "${RAM_REVAMPED_VERSION}" == "1.3.0" ]]
+  [[ -n "${TMUX_PLUGIN_DEFAULT_MAX_AGE}" ]]
+  [[ "${TMUX_PLUGIN_PENDING}" == "..." ]]
+}
+
+@test "constants.sh - the source guard is idempotent" {
+  unset _TMUX_PLUGIN_CONSTANTS_LOADED
+  source "${BATS_TEST_DIRNAME}/../../../src/lib/utils/constants.sh"
+  source "${BATS_TEST_DIRNAME}/../../../src/lib/utils/constants.sh"
+  [[ "${_TMUX_PLUGIN_CONSTANTS_LOADED}" == "1" ]]
+}

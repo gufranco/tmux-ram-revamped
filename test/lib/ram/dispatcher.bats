@@ -12,6 +12,10 @@ setup() {
   read_swap() { echo "25"; }
   read_pressure() { echo "12"; }
   read_breakdown() { echo "2048 1024 3072 4096"; }
+  read_absolute() { echo "8388608 33554432"; }
+  read_commit() { echo "42"; }
+  read_reclaimable() { echo "4194304"; }
+  read_top_process() { echo "firefox 1234567"; }
 }
 
 teardown() {
@@ -92,4 +96,94 @@ teardown() {
   out=$(main bogus); [[ -z "${out}" ]]
   main refresh
   [[ "$(cache_get percent)" == "60" ]]
+}
+
+@test "ram.sh dispatcher - ram_refresh caches the new metrics and history" {
+  ram_refresh
+  [[ "$(cache_get absolute)" == "8388608 33554432" ]]
+  [[ "$(cache_get commit)" == "42" ]]
+  [[ "$(cache_get reclaimable)" == "4194304" ]]
+  [[ "$(cache_get top_process)" == "firefox 1234567" ]]
+  [[ "$(get_tmux_option "@ram_revamped_history" "")" == "60" ]]
+}
+
+@test "ram.sh dispatcher - absolute subcommand renders the cache" {
+  ram_refresh
+  run main absolute
+  [[ "${output}" == "8G / 32G" ]]
+}
+
+@test "ram.sh dispatcher - commit subcommand renders the cache" {
+  ram_refresh
+  run main commit
+  [[ "${output}" == "42%" ]]
+}
+
+@test "ram.sh dispatcher - reclaimable subcommand renders the cache" {
+  ram_refresh
+  run main reclaimable
+  [[ "${output}" == "4G" ]]
+}
+
+@test "ram.sh dispatcher - top_process subcommand renders the cache" {
+  ram_refresh
+  run main top_process
+  [[ "${output}" == "firefox 1.2G" ]]
+}
+
+@test "ram.sh dispatcher - swap_icon and swap_color render the cache" {
+  ram_refresh
+  set_tmux_option "@ram_revamped_swap_active_icon" "!"
+  set_tmux_option "@ram_revamped_swap_active_color" "#[fg=red]"
+  run main swap_icon
+  [[ "${output}" == "!" ]]
+  run main swap_color
+  [[ "${output}" == "#[fg=red]" ]]
+}
+
+@test "ram.sh dispatcher - graph subcommand renders the history option" {
+  ram_refresh
+  set_tmux_option "@ram_revamped_history" "0 50 100"
+  run main graph
+  [[ "${output}" == "▁▅█" ]]
+}
+
+@test "ram.sh dispatcher - trend subcommand renders the history option" {
+  ram_refresh
+  set_tmux_option "@ram_revamped_history" "10 20 90"
+  run main trend
+  [[ "${output}" == "↑" ]]
+}
+
+@test "ram.sh dispatcher - text subcommand composes from the cache" {
+  ram_refresh
+  run main text
+  [[ "${output}" == "RAM 60% used, 40% available, swap 25%" ]]
+}
+
+@test "ram.sh dispatcher - popup subcommand routes through the _tmux seam" {
+  _tmux() { echo "TMUX:$*"; }
+  has_command() { return 0; }
+  _read_tmux_version() { echo "tmux 3.3"; }
+  run main popup
+  [[ "${output}" == *"display-popup"* ]]
+  [[ "${output}" == *"btop"* ]]
+}
+
+@test "ram.sh dispatcher - popup never launches a monitor on old tmux" {
+  _tmux() { echo "TMUX:$*"; }
+  has_command() { return 1; }
+  _read_tmux_version() { echo "tmux 2.9"; }
+  _PLATFORM_OS_CACHE="Linux"
+  run main popup
+  [[ "${output}" == *"new-window"* ]]
+  [[ "${output}" != *"display-popup"* ]]
+}
+
+@test "ram.sh dispatcher - doctor subcommand prints a report" {
+  _PLATFORM_OS_CACHE="Linux"
+  has_command() { return 0; }
+  run main doctor
+  [[ "${output}" == *"tmux-ram-revamped doctor"* ]]
+  [[ "${output}" == *"/proc/meminfo"* ]]
 }

@@ -4,11 +4,11 @@
 
 **RAM usage for your tmux status bar, without ever blocking the status render.**
 
-[![Tests](https://github.com/tmux-revamped/tmux-ram-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-ram-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.2.1-blue.svg)](CHANGELOG.md)
+[![Tests](https://github.com/tmux-revamped/tmux-ram-revamped/actions/workflows/tests.yml/badge.svg)](https://github.com/tmux-revamped/tmux-ram-revamped/actions/workflows/tests.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Version](https://img.shields.io/badge/version-1.3.0-blue.svg)](CHANGELOG.md)
 
 </div>
 
-**8** placeholders · **2** platforms · **112** tests · **95%+** coverage
+**17** placeholders · **2** platforms · **202** tests · **95%+** coverage
 
 Shows RAM usage, available memory, swap, and a memory breakdown in your tmux status bar. The value is read from a tmux server user-option and returns instantly, while a detached worker recomputes it in the background. No temp files are used; all state lives in tmux options.
 
@@ -37,6 +37,15 @@ Inspired by the RAM metrics in [tmux-cpu](https://github.com/tmux-plugins/tmux-c
 | `#{ram_swap}` | swap used percent, empty when there is no swap |
 | `#{ram_pressure}` | memory-pressure metric, for example `2%` |
 | `#{ram_breakdown}` | memory composition, for example `W 3.2G C 1.1G I 2.0G F 4.5G` |
+| `#{ram_swap_icon}` | warning icon shown while swap is in use |
+| `#{ram_swap_color}` | warning color shown while swap is in use |
+| `#{ram_absolute}` | absolute used over total, for example `12.3G / 32G` |
+| `#{ram_commit}` | committed-memory ratio percent (Linux), early OOM warning |
+| `#{ram_reclaimable}` | reclaimable cache size (Linux), for example `4.0G` |
+| `#{ram_top_process}` | the largest memory consumer, for example `firefox 1.2G` |
+| `#{ram_graph}` | history sparkline of recent usage, for example `▁▂▄▆█` |
+| `#{ram_trend}` | trend arrow over the history window (`↑` `↓` `→`) |
+| `#{ram_text}` | glyph-free plain-language line for screen readers |
 
 ## Install
 
@@ -48,6 +57,12 @@ set -g status-right '#{ram_icon} #{ram_percentage}'
 ```
 
 Press `prefix + I` to install.
+
+## Detail popup
+
+Press `prefix + M` to open a memory monitor in a tmux popup. It launches `btop`
+or `htop` when present, otherwise `free` on Linux or `vm_stat` on macOS. On tmux
+older than 3.2 it opens a window instead. Rebind it with `@ram_revamped_popup_key`.
 
 ## Configuration
 
@@ -70,6 +85,21 @@ Press `prefix + I` to install.
 | `@ram_revamped_swap_format` | `%s%%` | format for swap usage |
 | `@ram_revamped_pressure_format` | `%s%%` | format for the memory-pressure metric |
 | `@ram_revamped_breakdown_format` | `W %sG C %sG I %sG F %sG` | format for the memory breakdown (four values: wired, compressed, inactive, free) |
+| `@ram_revamped_absolute_format` | `%s / %s` | format for absolute used over total |
+| `@ram_revamped_commit_format` | `%s%%` | format for the commit ratio |
+| `@ram_revamped_reclaimable_format` | `%s` | format for the reclaimable cache figure |
+| `@ram_revamped_top_process_format` | `%s %s` | format for the top memory process (name, size) |
+| `@ram_revamped_history_size` | `30` | number of samples kept in the history ring |
+| `@ram_revamped_trend_threshold` | `3` | percent change before the trend arrow flips |
+| `@ram_revamped_trend_up` | `↑` | glyph for a rising trend |
+| `@ram_revamped_trend_down` | `↓` | glyph for a falling trend |
+| `@ram_revamped_trend_flat` | `→` | glyph for a steady trend |
+| `@ram_revamped_swap_warn_thresh` | `1` | swap percent at or above which the warning shows |
+| `@ram_revamped_swap_active_icon` | empty | icon shown by `#{ram_swap_icon}` while swap is active |
+| `@ram_revamped_swap_active_color` | empty | color shown by `#{ram_swap_color}` while swap is active |
+| `@ram_revamped_popup_key` | `M` | prefix key that opens the detail popup |
+| `@ram_revamped_popup_width` | `80%` | popup width |
+| `@ram_revamped_popup_height` | `60%` | popup height |
 | `@ram_revamped_enable_logging` | `0` | set to `1` to log under `~/.tmux/ram-revamped-logs` |
 
 ## Theme color suggestions

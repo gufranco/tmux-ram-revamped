@@ -200,3 +200,73 @@ export -f read_available
 export -f read_swap
 export -f read_pressure
 export -f read_breakdown
+
+# --- Absolute, commit, reclaimable, and top-process acquisition --------------
+
+# absolute_from_meminfo TEXT -> "<used_kb> <total_kb>" from /proc/meminfo.
+absolute_from_meminfo() {
+  printf '%s\n' "${1}" | awk '/MemTotal:/{t=$2} /MemAvailable:/{a=$2} END{u=(t+0)-(a+0); if(u<0)u=0; printf "%d %d", u, t+0}'
+}
+
+# absolute_from_vmstat TEXT PAGESIZE -> "<used_kb> <total_kb>" from vm_stat.
+absolute_from_vmstat() {
+  local ps="${2:-4096}"
+  printf '%s\n' "${1}" | awk -v ps="${ps}" '/Pages free:/{f=$NF} /Pages active:/{a=$NF} /Pages inactive:/{i=$NF} /Pages speculative:/{s=$NF} /Pages wired down:/{w=$NF} /occupied by compressor:/{c=$NF} END{u=(a+w+c)*ps/1024; t=(f+a+i+s+w+c)*ps/1024; printf "%d %d", u, t}'
+}
+
+# commit_from_meminfo TEXT -> Committed_AS/CommitLimit percent, empty if absent.
+commit_from_meminfo() {
+  printf '%s\n' "${1}" | awk '/CommitLimit:/{l=$2} /Committed_AS:/{c=$2} END{if((l+0)>0) printf "%.0f", ((c+0)/(l+0))*100}'
+}
+
+# reclaimable_from_meminfo TEXT -> reclaimable cache in kB (cached+buffers+slab).
+reclaimable_from_meminfo() {
+  printf '%s\n' "${1}" | awk '/^Cached:/{c=$2} /Buffers:/{b=$2} /SReclaimable:/{s=$2} END{printf "%d", (c+0)+(b+0)+(s+0)}'
+}
+
+# top_process_from_ps TEXT -> "<comm> <rss_kb>" for the largest RSS line.
+top_process_from_ps() {
+  printf '%s\n' "${1}" | awk 'BEGIN{max=-1} NF>=2{r=$1+0; name=$2; for(i=3;i<=NF;i++) name=name" "$i; if(r>max){max=r; n=name}} END{if(max>=0) printf "%s %d", n, max}'
+}
+
+# _read_ps_mem -> ps RSS and command name, one line per process. Seam for tests.
+_read_ps_mem() { ps axo rss=,comm= 2>/dev/null; }
+
+# read_absolute -> "<used_kb> <total_kb>" for the host.
+read_absolute() {
+  if is_linux; then
+    absolute_from_meminfo "$(_read_meminfo)"
+  elif is_macos && has_command vm_stat; then
+    absolute_from_vmstat "$(_read_vmstat)" "$(_read_pagesize)"
+  fi
+}
+
+# read_commit -> commit ratio percent, empty off Linux.
+read_commit() {
+  if is_linux; then
+    commit_from_meminfo "$(_read_meminfo)"
+  fi
+}
+
+# read_reclaimable -> reclaimable cache in kB, empty off Linux.
+read_reclaimable() {
+  if is_linux; then
+    reclaimable_from_meminfo "$(_read_meminfo)"
+  fi
+}
+
+# read_top_process -> "<comm> <rss_kb>" of the largest memory consumer.
+read_top_process() {
+  top_process_from_ps "$(_read_ps_mem)"
+}
+
+export -f absolute_from_meminfo
+export -f absolute_from_vmstat
+export -f commit_from_meminfo
+export -f reclaimable_from_meminfo
+export -f top_process_from_ps
+export -f _read_ps_mem
+export -f read_absolute
+export -f read_commit
+export -f read_reclaimable
+export -f read_top_process
